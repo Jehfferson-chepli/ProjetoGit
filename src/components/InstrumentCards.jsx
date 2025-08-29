@@ -1,67 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import useGetInstruments from '../hooks/useGetInstruments';
 import './InstrumentCards.css';
 
 const InstrumentCards = () => {
-  const [instruments, setInstruments] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const fetchInstruments = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        
-        const response = await fetch('/api/equipamentos', {
-          method: 'GET',
-          headers: {
-            'Accept': 'application/json',
-          },
-        });
-        
-        if (!response.ok) {
-          throw new Error(`Erro HTTP: ${response.status} - ${response.statusText}`);
-        }
-
-        const data = await response.json();
-        setInstruments(data);
-        
-      } catch (err) {
-        setError(err.message);
-        
-        const mockInstruments = [
-          {
-            id: 1,
-            nome: "Guitarra Fender",
-            tipo: "Guitarra",
-            marca: "Fender",
-            ano: 2020,
-            preco: 3500,
-            ativo: true,
-            voltagem: "Bivolt",
-            peso_kg: 3.5
-          },
-          {
-            id: 2,
-            nome: "Microfone Shure",
-            tipo: "Microfone",
-            marca: "Shure",
-            ano: 2018,
-            preco: 800,
-            ativo: true,
-            voltagem: "N/A",
-            peso_kg: 0.4
-          }
-        ];
-        
-        setInstruments(mockInstruments);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchInstruments();
-  }, []);
+  const { instruments, loading, error } = useGetInstruments();
 
   if (loading) {
     return (
@@ -127,7 +69,7 @@ const InstrumentCards = () => {
               
               <div className="card-footer">
                 <div className="price-status">
-                  <div className="price">R$ {instrument.preco}</div>
+                  <div className="price">R$ {instrument.preco.toFixed(2)}</div>
                   <span className={`status-badge ${instrument.ativo ? 'ativo' : 'inativo'}`}>
                     {instrument.ativo ? 'Ativo' : 'Inativo'}
                   </span>
