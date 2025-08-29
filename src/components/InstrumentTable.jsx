@@ -12,44 +12,83 @@ const InstrumentTable = () => {
         setLoading(true);
         setError(null);
         
-        const response = await fetch('http://localhost:3000/equipamentos');
+        const response = await fetch('/api/equipamentos', {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+          },
+        });
         
         if (!response.ok) {
-          throw new Error(`Erro ${response.status}: ${response.statusText}`);
+          throw new Error(`Erro HTTP: ${response.status} - ${response.statusText}`);
         }
-        
+
         const data = await response.json();
         setInstruments(data);
         
       } catch (err) {
         setError(err.message);
-        console.error('Erro ao buscar instrumentos:', err);
         
-        // Dados mockados de fallback
-        setInstruments([
+        // Dados mockados baseados no componente de cards
+        const mockInstruments = [
           {
             id: 1,
-            nome: "Guitarra Fender",
+            nome: "Guitarra Fender Stratocaster",
             tipo: "Guitarra",
             marca: "Fender",
             ano: 2020,
-            preco: 3500,
+            preco: 3500.00,
             ativo: true,
             voltagem: "Bivolt",
             peso_kg: 3.5
           },
           {
             id: 2,
-            nome: "Microfone Shure", 
-            tipo: "Microfone",
+            nome: "Microfone Shure SM58",
+            tipo: "Microfone", 
             marca: "Shure",
             ano: 2018,
-            preco: 800,
+            preco: 800.00,
             ativo: true,
             voltagem: "N/A",
             peso_kg: 0.4
+          },
+          {
+            id: 3,
+            nome: "Mesa de Som Behringer X32",
+            tipo: "Mesa de Som",
+            marca: "Behringer",
+            ano: 2019,
+            preco: 12000.00,
+            ativo: false,
+            voltagem: "110V",
+            peso_kg: 12
+          },
+          {
+            id: 4,
+            nome: "Teclado Yamaha PSR-E463",
+            tipo: "Teclado",
+            marca: "Yamaha",
+            ano: 2021,
+            preco: 2500.00,
+            ativo: true,
+            voltagem: "220V", 
+            peso_kg: 6.6
+          },
+          {
+            id: 5,
+            nome: "Amplificador Marshall MG30FX",
+            tipo: "Guitarra",
+            marca: "Marshall",
+            ano: 2022,
+            preco: 1800.00,
+            ativo: false,
+            voltagem: "Bivolt",
+            peso_kg: 7.8
           }
-        ]);
+        ];
+        
+        setInstruments(mockInstruments);
       } finally {
         setLoading(false);
       }
@@ -57,6 +96,14 @@ const InstrumentTable = () => {
 
     fetchInstruments();
   }, []);
+
+  // Função para formatar o preço em Real brasileiro
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    }).format(price);
+  };
 
   if (loading) {
     return (
@@ -69,24 +116,14 @@ const InstrumentTable = () => {
 
   return (
     <div className="instrument-table-container">
-      <div className="table-header">
-        <h2>Lista de Instrumentos</h2>
-        <div className="header-actions">
-          <button className="btn-add">
-            <i className="fas fa-plus"></i> Adicionar Instrumento
-          </button>
-          <div className="search-box">
-            <i className="fas fa-search"></i>
-            <input type="text" placeholder="Buscar instrumento..." />
-          </div>
-        </div>
-      </div>
-
+      <h2>Lista de Instrumentos</h2>
+      <p className="page-description">Visualize nossos instrumentos em formato de tabela</p>
+      
       {error && (
         <div className="error-banner">
           <div className="error-icon">⚠️</div>
           <div className="error-message">
-            <h4>Erro de conexão</h4>
+            <h4>Erro de Conexão</h4>
             <p>{error}</p>
             <small>Mostrando dados de exemplo</small>
           </div>
@@ -95,7 +132,7 @@ const InstrumentTable = () => {
           </button>
         </div>
       )}
-
+      
       <div className="table-responsive">
         <table className="instruments-table">
           <thead>
@@ -112,7 +149,7 @@ const InstrumentTable = () => {
             </tr>
           </thead>
           <tbody>
-            {instruments.map((instrument) => (
+            {instruments.map(instrument => (
               <tr key={instrument.id}>
                 <td>
                   <div className="instrument-name">
@@ -123,7 +160,7 @@ const InstrumentTable = () => {
                 <td>{instrument.marca}</td>
                 <td>{instrument.voltagem || 'N/A'}</td>
                 <td>{instrument.ano}</td>
-                <td className="price-cell">R$ {instrument.preco}</td>
+                <td className="price-cell">{formatPrice(instrument.preco)}</td>
                 <td>{instrument.peso_kg}</td>
                 <td>
                   <span className={`status-badge ${instrument.ativo ? 'ativo' : 'inativo'}`}>
@@ -144,21 +181,6 @@ const InstrumentTable = () => {
             ))}
           </tbody>
         </table>
-      </div>
-
-      <div className="table-footer">
-        <div className="pagination-info">
-          Mostrando {instruments.length} de {instruments.length} instrumentos
-        </div>
-        <div className="pagination-controls">
-          <button className="pagination-btn" disabled>
-            <i className="fas fa-chevron-left"></i>
-          </button>
-          <span className="pagination-page">1</span>
-          <button className="pagination-btn" disabled>
-            <i className="fas fa-chevron-right"></i>
-          </button>
-        </div>
       </div>
     </div>
   );
